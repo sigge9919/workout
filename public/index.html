@@ -1,0 +1,113 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>Daily Coach</title>
+<meta name="description" content="A 15-minute daily strength & flexibility coach." />
+<meta name="theme-color" content="#0f1420" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Daily Coach" />
+<link rel="icon" href="/icons/icon-192.png" />
+<link rel="stylesheet" href="/css/style.css" />
+
+<div id="app">
+
+  <header class="topbar">
+    <span class="brand">Daily Coach</span>
+    <span id="streakBadge" class="streak-badge" hidden></span>
+  </header>
+
+  <main id="homeView" class="view">
+    <section class="today-card">
+      <p class="eyebrow" id="dateLabel"></p>
+      <h1 id="themeTitle">Loading...</h1>
+      <p class="subtitle" id="themeSubtitle"></p>
+      <div class="meta-row">
+        <span id="durationLabel" class="pill"></span>
+        <span id="stepCountLabel" class="pill"></span>
+      </div>
+      <button id="startBtn" class="btn-primary">Start today's session</button>
+    </section>
+
+    <section class="option-row">
+      <label class="switch-row">
+        <span>
+          <strong>Legs already fatigued?</strong>
+          <small>Ran or hit leg day - swaps leg work for stretches</small>
+        </span>
+        <input type="checkbox" id="legsFatiguedToggle" />
+        <span class="switch"></span>
+      </label>
+    </section>
+
+    <section class="stats-row">
+      <div class="stat">
+        <span class="stat-value" id="streakValue">0</span>
+        <span class="stat-label">day streak</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="totalValue">0</span>
+        <span class="stat-label">sessions done</span>
+      </div>
+    </section>
+
+    <section class="settings-card">
+      <h2>Daily reminder</h2>
+      <p class="hint" id="notifHint">Get a push notification every day at your chosen time - works even when the app is closed, once installed to your Home Screen.</p>
+      <div class="reminder-row">
+        <input type="time" id="reminderTimeInput" value="07:30" />
+        <button id="enableNotifBtn" class="btn-secondary">Enable reminders</button>
+      </div>
+      <p class="status-line" id="notifStatus"></p>
+    </section>
+
+    <section class="settings-card">
+      <label class="switch-row">
+        <span><strong>Coach voice cues</strong><small>Spoken instructions during the session</small></span>
+        <input type="checkbox" id="coachVoiceToggle" checked />
+        <span class="switch"></span>
+      </label>
+    </section>
+
+    <section class="week-preview">
+      <h2>This week</h2>
+      <ol id="weekList" class="week-list"></ol>
+    </section>
+  </main>
+
+  <main id="sessionView" class="view" hidden>
+    <div class="session-header">
+      <button id="exitSessionBtn" class="icon-btn" aria-label="Exit session">&times;</button>
+      <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+      <span id="phaseCounter" class="phase-counter"></span>
+    </div>
+
+    <div class="coach-stage">
+      <p class="phase-kind" id="phaseKind">GET READY</p>
+      <h1 id="exerciseName">Warming up...</h1>
+      <p class="side-label" id="sideLabel"></p>
+      <div class="timer-ring">
+        <span id="timeRemaining">--</span>
+      </div>
+      <p class="cue-text" id="cueText"></p>
+    </div>
+
+    <div class="session-controls">
+      <button id="pauseBtn" class="btn-secondary">Pause</button>
+      <button id="skipBtn" class="btn-secondary">Skip</button>
+    </div>
+  </main>
+
+  <main id="doneView" class="view" hidden>
+    <div class="done-card">
+      <p class="eyebrow">Session complete</p>
+      <h1 id="doneTitle">Nice work</h1>
+      <p id="doneSummary" class="subtitle"></p>
+      <button id="doneHomeBtn" class="btn-primary">Back home</button>
+    </div>
+  </main>
+
+</div>
+
+<script type="module" src="/js/app.js"></script>

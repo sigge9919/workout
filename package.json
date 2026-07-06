@@ -1,0 +1,27 @@
+{
+  "name": "daily-coach",
+  "version": "1.0.0",
+  "description": "A 15-minute daily strength & flexibility coach - installable on iPhone as a PWA, with real push reminders.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "generate-vapid": "web-push generate-vapid-keys"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:41729/git/sigge9919/workout"
+  },
+  "keywords": ["pwa", "fitness", "mobility", "flexibility"],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "web-push": "^3.6.7"
+  }
+}
