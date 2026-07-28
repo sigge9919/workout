@@ -63,6 +63,7 @@ Re-run **Sync latest runs** any time you want a fresh report from your latest ru
 - Your Garmin email/password are sent only to this app's own server (never a third party) and stored in `data/garmin-credentials.json` so it can re-sync later; the Garmin session token is cached in `data/garmin-tokens/`. Both are `.gitignore`d - never commit them. Treat them like the `.env` secrets: fine for a personal single-user deployment, but don't deploy this publicly without adding real auth in front of it.
 - Running-dynamics metrics (vertical oscillation, ground contact time, vertical ratio, ground-contact balance) require a compatible chest strap or running watch (e.g. HRM-Pro/Run/Tri, or a wrist watch with built-in running dynamics). Runs without that data still get scored on cadence alone.
 - Use **Disconnect** in the Running tab to delete the stored credentials, session, and cached report from the server.
+- **"Too Many Requests" / rate limited:** Garmin's SSO throttles automated logins, especially from datacenter/cloud IPs (common on Render/Railway/Fly-style hosts) or after a couple of quick retries. The app remembers a rate-limit hit (in `data/garmin-ratelimit.json`) and blocks further attempts with a countdown instead of hammering Garmin again, backing off further (15 min, 30 min, 1 hr, ... up to 6 hr) on repeat hits. If you hit this: stop retrying, wait for the countdown, and if it keeps recurring, try connecting from a residential network rather than a cloud host - Garmin blocks those IP ranges much more aggressively.
 
 ## Project structure
 
