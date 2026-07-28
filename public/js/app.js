@@ -3,6 +3,7 @@ import { WEEK_PROGRAM } from './exercises.js';
 import * as storage from './storage.js';
 import * as notif from './notifications.js';
 import { SessionRunner } from './timer.js';
+import { initRunning, refreshRunning } from './running.js';
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -11,6 +12,7 @@ const views = {
   home: el('homeView'),
   session: el('sessionView'),
   done: el('doneView'),
+  running: el('runningView'),
 };
 
 let currentSession = null;
@@ -18,6 +20,13 @@ let runner = null;
 
 function showView(name) {
   for (const [key, node] of Object.entries(views)) node.hidden = key !== name;
+  const tabBar = document.querySelector('.tab-bar');
+  const isTopLevel = name === 'home' || name === 'running';
+  tabBar.hidden = !isTopLevel;
+  if (isTopLevel) {
+    el('homeTabBtn').classList.toggle('is-active', name === 'home');
+    el('runningTabBtn').classList.toggle('is-active', name === 'running');
+  }
 }
 
 function renderHome() {
@@ -125,6 +134,9 @@ function exitSession(recordPartial = true) {
 }
 
 function wireEvents() {
+  el('homeTabBtn').addEventListener('click', () => { renderHome(); showView('home'); });
+  el('runningTabBtn').addEventListener('click', () => { showView('running'); refreshRunning(); });
+
   el('startBtn').addEventListener('click', startSession);
   el('exitSessionBtn').addEventListener('click', () => exitSession(true));
   el('doneHomeBtn').addEventListener('click', () => { renderHome(); showView('home'); });
@@ -203,6 +215,7 @@ function init() {
   showView('home');
   registerServiceWorker();
   initNotifStatus();
+  initRunning();
 }
 
 init();
