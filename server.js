@@ -4,6 +4,9 @@ import webpush from 'web-push';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import * as garmin from './lib/garmin.js';
+import { analyzeRuns } from './lib/runningAnalysis.js';
+import { drillsForIssues } from './lib/drills.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(__dirname, 'data');
@@ -63,6 +66,54 @@ app.post('/api/unsubscribe', (req, res) => {
   const subs = loadSubs().filter((s) => s.subscription.endpoint !== endpoint);
   saveSubs(subs);
   res.json({ ok: true });
+});
+
+app.get('/api/garmin/status', (req, res) => {
+  res.json(garmin.getStatus());
+});
+
+app.post('/api/garmin/connect', async (req, res) => {
+  const { email, password } = req.body || {};
+  if (!email || !password) {
+    return res.status(400).json({ error: 'email and password are required.' });
+  }
+  try {
+    const { displayName } = await garmin.connect({ username: email, password });
+    res.json({ ok: true, displayName });
+  } catch (err) {
+    res.status(401).json({ error: err.message || 'Could not log in to Garmin Connect.' });
+  }
+});
+
+app.post('/api/garmin/disconnect', (req, res) => {
+  garmin.disconnect();
+  res.json({ ok: true });
+});
+
+function buildAnalysisReport(activities) {
+  const analysis = analyzeRuns(activities);
+  const drills = drillsForIssues(analysis.issues.map((i) => i.key));
+  return { ...analysis, drills };
+}
+
+app.post('/api/garmin/sync', async (req, res) => {
+  if (!garmin.hasCredentials()) {
+    return res.status(400).json({ error: 'Connect your Garmin account first.' });
+  }
+  try {
+    const activities = await garmin.fetchRecentRunningActivities(20);
+    const report = buildAnalysisReport(activities);
+    const saved = garmin.saveAnalysis(report);
+    res.json(saved);
+  } catch (err) {
+    res.status(502).json({ error: err.message || 'Could not sync with Garmin Connect.' });
+  }
+});
+
+app.get('/api/garmin/analysis', (req, res) => {
+  const cached = garmin.getCachedAnalysis();
+  if (!cached) return res.status(404).json({ error: 'No analysis yet - sync first.' });
+  res.json(cached);
 });
 
 function currentHmInTz(timezone) {

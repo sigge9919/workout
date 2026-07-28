@@ -18,6 +18,11 @@
     <span id="streakBadge" class="streak-badge" hidden></span>
   </header>
 
+  <nav class="tab-bar">
+    <button class="tab-btn is-active" id="homeTabBtn" data-view="home">Home</button>
+    <button class="tab-btn" id="runningTabBtn" data-view="running">Running</button>
+  </nav>
+
   <main id="homeView" class="view">
     <section class="today-card">
       <p class="eyebrow" id="dateLabel"></p>
@@ -106,6 +111,76 @@
       <p id="doneSummary" class="subtitle"></p>
       <button id="doneHomeBtn" class="btn-primary">Back home</button>
     </div>
+  </main>
+
+  <main id="runningView" class="view" hidden>
+    <section class="today-card">
+      <p class="eyebrow">Running technique</p>
+      <h1>Garmin run analysis</h1>
+      <p class="subtitle">Connect Garmin, sync your recent runs, and get a technique breakdown plus drills to fix what's slowing you down.</p>
+    </section>
+
+    <section class="settings-card" id="garminConnectCard">
+      <h2>Connect Garmin</h2>
+      <p class="hint">Your Garmin email/password are sent to this app's own server only, to sync your runs - never to a third party. See the README for details.</p>
+      <div class="form-row">
+        <input type="email" id="garminEmail" placeholder="Garmin email" autocomplete="username" />
+      </div>
+      <div class="form-row">
+        <input type="password" id="garminPassword" placeholder="Garmin password" autocomplete="current-password" />
+      </div>
+      <button id="garminConnectBtn" class="btn-primary">Connect Garmin</button>
+      <p class="status-line" id="garminConnectStatus"></p>
+    </section>
+
+    <section class="settings-card" id="garminConnectedCard" hidden>
+      <div class="switch-row">
+        <span>
+          <strong id="garminAccountName">Connected</strong>
+          <small id="garminLastSynced">Never synced</small>
+        </span>
+        <button id="garminDisconnectBtn" class="btn-link">Disconnect</button>
+      </div>
+      <button id="garminSyncBtn" class="btn-primary btn-full">Sync latest runs</button>
+      <p class="status-line" id="garminSyncStatus"></p>
+    </section>
+
+    <section id="runningAnalysis" hidden>
+      <section class="stats-row">
+        <div class="stat score-stat">
+          <span class="stat-value" id="techniqueScoreValue">--</span>
+          <span class="stat-label">Technique score</span>
+        </div>
+      </section>
+      <p class="hint" id="runsAnalyzedLabel"></p>
+
+      <section class="metrics-grid" id="metricsGrid"></section>
+
+      <section class="week-preview" id="trendsSection" hidden>
+        <h2>Trend: recent vs. earlier runs</h2>
+        <ul class="trend-list" id="trendsList"></ul>
+      </section>
+
+      <section class="week-preview" id="issuesSection" hidden>
+        <h2>What's holding you back</h2>
+        <ul class="issue-list" id="issuesList"></ul>
+      </section>
+
+      <section class="week-preview">
+        <h2>Drills to fix it</h2>
+        <div class="drill-list" id="drillsList"></div>
+      </section>
+
+      <section class="week-preview">
+        <h2>Recent runs</h2>
+        <div class="runs-table-wrap">
+          <table class="runs-table" id="runsTable">
+            <thead><tr><th>Date</th><th>Dist</th><th>Pace</th><th>Cadence</th><th>GCT</th><th>VO</th></tr></thead>
+            <tbody id="runsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
   </main>
 
 </div>
