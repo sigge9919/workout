@@ -9,3 +9,5 @@ web/.next/
 web/test-results/
 web/playwright-report/
 *.tsbuildinfo
+*.egg-info/
+web/next-env.d.ts

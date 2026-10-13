@@ -1,6 +1,6 @@
 """Schema, RLS and trigger tests against a local Postgres.
 
-Run: DATABASE_URL=postgresql://postgres@localhost/innebandy_test pytest supabase/tests
+Run: ADMIN_DATABASE_URL=postgresql://postgres:postgres@localhost/postgres pytest supabase/tests
 The database is recreated for each test session.
 """
 
@@ -13,13 +13,17 @@ import psycopg
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-ADMIN_URL = os.environ.get("ADMIN_DATABASE_URL", "postgresql://postgres@localhost/postgres")
+ADMIN_URL = os.environ.get("ADMIN_DATABASE_URL", "postgresql://postgres:postgres@localhost/postgres")
 DB_NAME = os.environ.get("TEST_DB_NAME", "innebandy_test")
 
 
 @pytest.fixture(scope="session")
 def db_url():
-    with psycopg.connect(ADMIN_URL, autocommit=True) as conn:
+    try:
+        admin = psycopg.connect(ADMIN_URL, autocommit=True, connect_timeout=3)
+    except psycopg.OperationalError as e:
+        pytest.skip(f"no Postgres at ADMIN_DATABASE_URL: {e}")
+    with admin as conn:
         conn.execute(f'drop database if exists "{DB_NAME}" with (force)')
         conn.execute(f'create database "{DB_NAME}"')
     url = ADMIN_URL.rsplit("/", 1)[0] + "/" + DB_NAME
