@@ -46,7 +46,7 @@ Allt ovan är verifierat med en syntetisk testvideo, eftersom jag inte har någo
 
 ## Svagheter och kända begränsningar
 
-1. **Supabase-migrationen är inte helt applicerad på det riktiga projektet.** Supabase-verktyget kräver din bekräftelse för SQL som innehåller `DELETE`, även i funktionskroppar. Därför är bara schema, tabeller och RLS applicerade. Triggers för klipp och kontext samt standardtaggarna väntar. Lös det genom att bekräfta i en session där du är med, eller köra `supabase db push` mot projektet.
+1. ~~Supabase-migrationen var inte helt applicerad.~~ **Löst:** resten kördes via SQL Editor. Den är verifierad med ett funktionstest i databasen: en tagg ger ett klipp och fyller i kontexten. Därefter lades härdningsmigrationen `20261013200000_harden_function_grants.sql` till efter Supabases säkerhetsgranskning. Kvar i granskningen finns bara avsiktliga saker: `job_report` är öppen för workers med jobbtoken, och `job_secrets` har RLS men inga policyer.
 2. **Gratisnivån i Supabase tar max 50 MB per fil.** Riktig matchvideo kräver Cloudflare R2 (rekommenderas) eller Supabase Pro. API:t har S3-stöd, men jag har inte kunnat testa mot R2 utan nycklar.
 3. **Matchklockan är manuell** och kräver periodstart plus en synk vid behov. Mellan synkpunkterna antas klockan gå. Om klockan står still (effektiv tid) utan en ny synk blir matchtiden för hög, upp till nästa synkpunkt där den kapas. Fas 3 (OCR) ersätter detta.
 4. **Motståndarnas femmor stöds i datamodellen men har inget UI ännu.** Spelare på plan visas bara för vårt lag (plus motståndarnas målvakt om den läggs in).

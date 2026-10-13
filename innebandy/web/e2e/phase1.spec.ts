@@ -57,8 +57,10 @@ test("phase 1: tag a match with hotkeys and get clips with context", async ({ pa
     await page.locator("#nr-own").fill(p.nr);
     await page.locator("#name-own").fill(p.name);
     if (p.pos) await page.locator("#pos-own").selectOption(p.pos);
+    await expect(page.locator("#nr-own")).toHaveValue(p.nr);
     await page.getByRole("button", { name: "Lägg till spelare" }).click();
-    await expect(page.getByRole("textbox", { name: "Namn" }).last()).toHaveValue(p.name);
+    await expect(page.getByLabel(`Nummer för ${p.name}`)).toHaveValue(p.nr);
+    await expect(page.locator("#name-own")).toHaveValue("");
   }
   await shot(page, "01-trupp");
 
