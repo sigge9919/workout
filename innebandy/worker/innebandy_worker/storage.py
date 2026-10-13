@@ -40,6 +40,15 @@ class Storage(Protocol):
     def download(self, key: str, dest: str | Path) -> None: ...
     def upload(self, src: str | Path, key: str, content_type: str) -> None: ...
     def exists(self, key: str) -> bool: ...
+    def delete(self, key: str) -> None: ...
+    def delete_prefix(self, prefix: str) -> int: ...
+
+
+def _check_prefix(prefix: str) -> str:
+    # Never allow wiping the whole bucket or a team folder by mistake.
+    if not prefix.endswith("/") or prefix.count("/") < 4:
+        raise ValueError(f"refusing to delete prefix {prefix!r}")
+    return _check_key(prefix)
 
 
 def _check_key(key: str) -> str:
@@ -138,6 +147,17 @@ class LocalStorage:
     def exists(self, key: str) -> bool:
         return self.path(key).is_file()
 
+    def delete(self, key: str) -> None:
+        self.path(key).unlink(missing_ok=True)
+
+    def delete_prefix(self, prefix: str) -> int:
+        d = self.path(_check_prefix(prefix).rstrip("/"))
+        if not d.is_dir():
+            return 0
+        n = sum(1 for p in d.rglob("*") if p.is_file())
+        shutil.rmtree(d)
+        return n
+
 
 class S3Storage:
     name = "s3"
@@ -190,6 +210,19 @@ class S3Storage:
             return True
         except self.client.exceptions.ClientError:
             return False
+
+    def delete(self, key: str) -> None:
+        self.client.delete_object(Bucket=self.bucket, Key=_check_key(key))
+
+    def delete_prefix(self, prefix: str) -> int:
+        n = 0
+        paginator = self.client.get_paginator("list_objects_v2")
+        for page in paginator.paginate(Bucket=self.bucket, Prefix=_check_prefix(prefix)):
+            objs = [{"Key": o["Key"]} for o in page.get("Contents", [])]
+            if objs:
+                self.client.delete_objects(Bucket=self.bucket, Delete={"Objects": objs, "Quiet": True})
+                n += len(objs)
+        return n
 
 
 def storage_from_env(env: dict[str, str] | None = None) -> Storage:

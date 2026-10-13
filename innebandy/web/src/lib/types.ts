@@ -13,6 +13,7 @@ export interface TeamSettings {
   clip_post_s: number;
   period_length_s: number;
   periods: number;
+  keep_originals: number | null;
 }
 
 export interface Opponent {

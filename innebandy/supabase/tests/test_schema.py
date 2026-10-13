@@ -252,3 +252,62 @@ def test_job_report_updates_video(conn):
     act_as(conn, t["user"])
     with pytest.raises(psycopg.errors.InsufficientPrivilege):
         conn.execute("select token_hash from jobs")
+
+
+def _ready_match(conn, t, played_at, with_original=True):
+    m = conn.execute("insert into matches (team_id, played_at) values (%s, %s) returning id",
+                     (t["team"], played_at)).fetchone()[0]
+    v = conn.execute(
+        "insert into videos (team_id, match_id, status, original_key, proxy_key, duration_s) "
+        "values (%s, %s, 'ready', %s, 'p.mp4', 60) returning id",
+        (t["team"], m, f"teams/{t['team']}/videos/x/original.mp4" if with_original else None),
+    ).fetchone()[0]
+    return m, v
+
+
+def _cleanup(conn, t, keep):
+    conn.execute("update team_settings set keep_originals = %s where team_id = %s", (keep, t["team"]))
+    job_id, token = conn.execute("select * from create_job(%s, 'transcode')", (t["video"],)).fetchone()
+    conn.execute("reset role")
+    conn.execute("set local role anon")
+    rows = conn.execute("select kind, video_id, key from job_storage_cleanup(%s, %s)", (job_id, token)).fetchall()
+    return job_id, token, rows
+
+
+def test_retention_keeps_originals_of_recent_matches(conn):
+    t = setup_team(conn)
+    old = [_ready_match(conn, t, f"2026-0{i}-01") for i in range(1, 5)]  # 4 matches Jan-Apr
+    job_id, token, rows = _cleanup(conn, t, 2)
+    originals = {r[1] for r in rows if r[0] == "original"}
+    # The 2 most recent ready matches (Mar, Apr) keep originals; Jan, Feb are purged.
+    assert originals == {old[0][1], old[1][1]}
+
+    conn.execute("select job_storage_cleanup_done(%s, %s, %s, '{}')", (job_id, token, list(originals)))
+    act_as(conn, t["user"])
+    r = conn.execute("select original_key, original_deleted_at is not null from videos where id = %s",
+                     (old[0][1],)).fetchone()
+    assert r == (None, True)
+
+
+def test_retention_null_keeps_everything(conn):
+    t = setup_team(conn)
+    _ready_match(conn, t, "2026-01-01")
+    _, _, rows = _cleanup(conn, t, None)
+    assert [r for r in rows if r[0] == "original"] == []
+
+
+def test_deleted_video_files_become_garbage(conn):
+    t = setup_team(conn)
+    m, v = _ready_match(conn, t, "2026-01-01")
+    conn.execute("delete from matches where id = %s", (m,))
+    _, _, rows = _cleanup(conn, t, None)
+    assert ("prefix", None, f"teams/{t['team']}/videos/{v}/") in rows
+
+
+def test_cleanup_requires_valid_token(conn):
+    t = setup_team(conn)
+    job_id, _ = conn.execute("select * from create_job(%s, 'transcode')", (t["video"],)).fetchone()
+    conn.execute("reset role")
+    conn.execute("set local role anon")
+    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+        conn.execute("select * from job_storage_cleanup(%s, 'wrong')", (job_id,))

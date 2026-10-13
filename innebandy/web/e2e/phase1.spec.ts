@@ -28,7 +28,7 @@ test("phase 1: tag a match with hotkeys and get clips with context", async ({ pa
   fs.mkdirSync(SHOTS, { recursive: true });
   const webm = fs.readFileSync(path.join(FIXTURES, "match.webm"));
   // Serve byte ranges like the real media endpoint so the video is seekable.
-  await page.route(/\/local-storage\/media\/.*proxy\.mp4/, (route) => {
+  await page.route(/\/proxy\.mp4(\?|$)/, (route) => {
     const m = /bytes=(\d+)-(\d*)/.exec(route.request().headers()["range"] ?? "");
     if (!m) return route.fulfill({ status: 200, contentType: "video/webm", body: webm, headers: { "accept-ranges": "bytes" } });
     const start = Number(m[1]);

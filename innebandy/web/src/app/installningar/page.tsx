@@ -100,12 +100,15 @@ function ClipDefaults({ settings, canEdit, onReapply }: { settings: TeamSettings
   const [pre, setPre] = useState(String(settings.clip_pre_s));
   const [post, setPost] = useState(String(settings.clip_post_s));
   const [periodMin, setPeriodMin] = useState(String(settings.period_length_s / 60));
+  const [keepAll, setKeepAll] = useState(settings.keep_originals == null);
+  const [keep, setKeep] = useState(String(settings.keep_originals ?? 5));
   const [saved, setSaved] = useState(false);
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const r = await supabase().from("team_settings").update({
-      clip_pre_s: Number(pre), clip_post_s: Number(post), period_length_s: Math.round(Number(periodMin) * 60), updated_at: new Date().toISOString(),
+      clip_pre_s: Number(pre), clip_post_s: Number(post), period_length_s: Math.round(Number(periodMin) * 60),
+      keep_originals: keepAll ? null : Math.max(0, Math.round(Number(keep))), updated_at: new Date().toISOString(),
     }).eq("team_id", settings.team_id);
     setSaved(!r.error);
   }
@@ -125,6 +128,25 @@ function ClipDefaults({ settings, canEdit, onReapply }: { settings: TeamSettings
         <div>
           <label className="label" htmlFor="plen">Periodlängd (min)</label>
           <input id="plen" className="input w-24" type="number" min={1} max={60} value={periodMin} onChange={(e) => setPeriodMin(e.target.value)} disabled={!canEdit} />
+        </div>
+        <div className="w-full border-t border-slate-100 pt-3">
+          <div className="label">Originalfiler</div>
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <label className="flex items-center gap-1.5">
+              <input type="checkbox" checked={keepAll} disabled={!canEdit} onChange={(e) => setKeepAll(e.target.checked)} />
+              Spara alla
+            </label>
+            {!keepAll && (
+              <>
+                <span>eller spara för de senaste</span>
+                <input aria-label="Antal matcher med originalfil" className="input w-20" type="number" min={0} max={1000} value={keep} onChange={(e) => setKeep(e.target.value)} disabled={!canEdit} />
+                <span>matcherna</span>
+              </>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Proxyvideon (1080p) sparas alltid och räcker för taggning, klipp och export. Originalen ger något bättre underlag för den automatiska analysen men dubblar lagringskostnaden. Äldre original raderas automatiskt när en ny video har bearbetats.
+          </p>
         </div>
         {canEdit && <button className="btn btn-primary">Spara</button>}
         {canEdit && <button type="button" className="btn" onClick={onReapply}>Uppdatera befintliga klipp</button>}

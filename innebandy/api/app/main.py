@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
-from innebandy_worker.jobs import JobRef, Reporter, run_transcode
+from innebandy_worker.jobs import JobRef, Reporter, run_transcode_job
 from innebandy_worker.storage import PART_SIZE, LocalStorage, Part, Storage, storage_from_env
 
 from .config import Settings, get_settings
@@ -68,7 +68,7 @@ class Dispatcher:
             fn.spawn(job.job_id, job.token, original_key)
             return
         report = Reporter(self.settings.supabase_url, self.settings.supabase_anon_key, job)
-        fut = self.pool.submit(run_transcode, self.storage, original_key, report)
+        fut = self.pool.submit(run_transcode_job, self.storage, original_key, report)
         fut.add_done_callback(lambda f: f.exception() and log.error("transcode failed: %s", f.exception()))
 
 
@@ -189,6 +189,8 @@ def retranscode(video_id: str, token: str = Depends(current_token),
                 sb: SupabaseClient = Depends(get_supabase), dispatcher: Dispatcher = Depends(get_dispatcher)):
     """Re-run transcoding (e.g. after a failure)."""
     video = sb.get_video(token, video_id)
+    if video.get("original_deleted_at"):
+        raise HTTPException(409, "Originalfilen är raderad enligt lagets inställning och kan inte bearbetas om.")
     if not video.get("original_key") or video["status"] in ("created", "uploading"):
         raise HTTPException(409, "Videon är inte uppladdad.")
     job_id, job_token = sb.create_job(token, video_id, "transcode")

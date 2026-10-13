@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "psycopg[binary]>=3.2"]
+dev = ["pytest>=8", "psycopg[binary]>=3.2", "moto[server]>=5"]
 modal = ["modal>=1.0"]
 
 [tool.pytest.ini_options]

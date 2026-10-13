@@ -60,13 +60,15 @@ EOF
 
 ## Produktion
 
+Steg-för-steg-guide: [docs/driftsattning.md](docs/driftsattning.md).
+
 | Del | Rekommendation |
 |---|---|
 | Databas/auth | Supabase-projektet *Innebandy Analys* (`dmfeafseyecocyaxsdtv`, eu-north-1). |
-| Videolagring | `STORAGE_BACKEND=s3` mot **Cloudflare R2** (ingen egress-kostnad) eller Supabase Storage via S3-protokollet. Supabases gratisnivå tillåter bara filer upp till 50 MB, så matchvideo kräver R2 eller Supabase Pro. |
+| Videolagring | **Cloudflare R2** (`STORAGE_BACKEND=s3`). Original sparas för de senaste N matcherna (inställning per lag), proxyn alltid. Kontrollera med `scripts/check_storage.py`. |
 | Transkodning | `WORKER_MODE=modal`, deploy med `modal deploy worker/modal_app.py`. |
-| API | Valfri Python-värd (Fly.io, Render, Railway). Sätt `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `CORS_ORIGINS`, `PUBLIC_API_URL` och S3-variablerna. |
-| Webb | Vercel eller annan Node-värd med de tre `NEXT_PUBLIC_*`-variablerna. |
+| API | **Render** via `render.yaml` (Docker, `api/Dockerfile`). |
+| Webb | **Vercel**, root `innebandy/web`. |
 
 ## Kortkommandon i taggningen
 

@@ -1,0 +1,42 @@
+# Render blueprint for the floorball analysis API (innebandy/). Secrets are
+# set in the Render dashboard (sync: false). See innebandy/docs/driftsattning.md.
+services:
+  - type: web
+    name: innebandy-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./innebandy/api/Dockerfile
+    dockerContext: ./innebandy
+    buildFilter:
+      paths:
+        - innebandy/api/**
+        - innebandy/worker/**
+    healthCheckPath: /health
+    envVars:
+      - key: SUPABASE_URL
+        value: https://dmfeafseyecocyaxsdtv.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: sb_publishable_M6CInPfXyBzfKsfeF9_kzA_1oEI0F6v
+      - key: STORAGE_BACKEND
+        value: s3
+      - key: S3_REGION
+        value: auto
+      - key: WORKER_MODE
+        value: modal
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+      - key: MODAL_TOKEN_ID
+        sync: false
+      - key: MODAL_TOKEN_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: PUBLIC_API_URL
+        sync: false
