@@ -12,12 +12,13 @@ from __future__ import annotations
 import hashlib
 import hmac
 import os
+import re
 import shutil
 import time
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Callable, Protocol
 from urllib.parse import quote, urlencode
 
 PART_SIZE = 64 * 1024 * 1024  # 64 MiB; S3 allows max 10 000 parts => 640 GB
@@ -204,6 +205,13 @@ class S3Storage:
     def upload(self, src: str | Path, key: str, content_type: str) -> None:
         self.client.upload_file(str(src), self.bucket, _check_key(key), ExtraArgs={"ContentType": content_type})
 
+    def can_access(self) -> bool:
+        try:
+            self.client.list_objects_v2(Bucket=self.bucket, MaxKeys=1)
+            return True
+        except self.client.exceptions.ClientError:
+            return False
+
     def exists(self, key: str) -> bool:
         try:
             self.client.head_object(Bucket=self.bucket, Key=key)
@@ -225,6 +233,20 @@ class S3Storage:
         return n
 
 
+_R2_HOST = re.compile(r"^(https://[0-9a-f]{32})\.r2\.cloudflarestorage\.com/?$")
+
+
+def resolve_r2_endpoint(endpoint: str | None, can_access: Callable[[str], bool]) -> str | None:
+    """R2 buckets in the EU jurisdiction only answer on <account>.eu.r2...; the
+    plain endpoint returns AccessDenied even with a valid token. If the plain
+    endpoint is configured but refused, use the EU one when that works."""
+    m = _R2_HOST.match(endpoint or "")
+    if not m or can_access(endpoint):
+        return endpoint
+    eu = f"{m.group(1)}.eu.r2.cloudflarestorage.com"
+    return eu if can_access(eu) else endpoint
+
+
 def storage_from_env(env: dict[str, str] | None = None) -> Storage:
     env = dict(os.environ if env is None else env)
     backend = env.get("STORAGE_BACKEND", "local")
@@ -235,9 +257,11 @@ def storage_from_env(env: dict[str, str] | None = None) -> Storage:
             env["MEDIA_SIGNING_SECRET"],
         )
     if backend == "s3":
-        return S3Storage(
-            bucket=env["S3_BUCKET"], endpoint_url=env.get("S3_ENDPOINT") or None,
-            access_key=env["S3_ACCESS_KEY_ID"], secret_key=env["S3_SECRET_ACCESS_KEY"],
-            region=env.get("S3_REGION", "auto"),
-        )
+        def make(endpoint: str | None) -> S3Storage:
+            return S3Storage(
+                bucket=env["S3_BUCKET"], endpoint_url=endpoint,
+                access_key=env["S3_ACCESS_KEY_ID"], secret_key=env["S3_SECRET_ACCESS_KEY"],
+                region=env.get("S3_REGION", "auto"),
+            )
+        return make(resolve_r2_endpoint(env.get("S3_ENDPOINT") or None, lambda e: make(e).can_access()))
     raise ValueError(f"unknown STORAGE_BACKEND {backend!r}")

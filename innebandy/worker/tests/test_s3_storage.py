@@ -77,3 +77,19 @@ def test_abort_multipart(storage):
     upload_id = storage.create_multipart(key, "video/mp4")
     storage.abort_multipart(key, upload_id)
     assert not storage.exists(key)
+
+
+ACCOUNT = "https://" + "a" * 32
+
+
+@pytest.mark.parametrize("configured, accessible, expected", [
+    (ACCOUNT + ".r2.cloudflarestorage.com", {ACCOUNT + ".r2.cloudflarestorage.com"}, ACCOUNT + ".r2.cloudflarestorage.com"),
+    (ACCOUNT + ".r2.cloudflarestorage.com", {ACCOUNT + ".eu.r2.cloudflarestorage.com"}, ACCOUNT + ".eu.r2.cloudflarestorage.com"),
+    (ACCOUNT + ".r2.cloudflarestorage.com", set(), ACCOUNT + ".r2.cloudflarestorage.com"),
+    (ACCOUNT + ".eu.r2.cloudflarestorage.com", set(), ACCOUNT + ".eu.r2.cloudflarestorage.com"),
+    ("http://127.0.0.1:9000", set(), "http://127.0.0.1:9000"),
+    (None, set(), None),
+])
+def test_resolve_r2_endpoint_falls_back_to_eu_jurisdiction(configured, accessible, expected):
+    from innebandy_worker.storage import resolve_r2_endpoint
+    assert resolve_r2_endpoint(configured, lambda e: e in accessible) == expected
