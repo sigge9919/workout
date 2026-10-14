@@ -24,7 +24,7 @@ Värden som återkommer nedan:
 |---|---|
 | `ACCOUNT_ID` | Cloudflare → R2 → höger kolumn "Account ID" |
 | `BUCKET` | Namnet på bucketen du skapat |
-| `S3_ENDPOINT` | `https://<ACCOUNT_ID>.r2.cloudflarestorage.com` |
+| `S3_ENDPOINT` | `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`, eller `https://<ACCOUNT_ID>.eu.r2.cloudflarestorage.com` om bucketen ligger i EU-jurisdiktionen (står "EU" vid bucketnamnet). Fel endpoint ger `AccessDenied` trots rätt token. |
 | `SUPABASE_URL` | `https://dmfeafseyecocyaxsdtv.supabase.co` |
 | `SUPABASE_ANON_KEY` | `sb_publishable_M6CInPfXyBzfKsfeF9_kzA_1oEI0F6v` (publik nyckel, inte hemlig) |
 
