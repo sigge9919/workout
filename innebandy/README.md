@@ -67,8 +67,8 @@ Steg-för-steg-guide: [docs/driftsattning.md](docs/driftsattning.md).
 | Databas/auth | Supabase-projektet *Innebandy Analys* (`dmfeafseyecocyaxsdtv`, eu-north-1). |
 | Videolagring | **Cloudflare R2** (`STORAGE_BACKEND=s3`). Original sparas för de senaste N matcherna (inställning per lag), proxyn alltid. Kontrollera med `scripts/check_storage.py`. |
 | Transkodning | `WORKER_MODE=modal`, deploy med `modal deploy worker/modal_app.py`. |
-| API | **Render** via `render.yaml` (Docker, `api/Dockerfile`). |
-| Webb | **Vercel**, root `innebandy/web`. |
+| API | **Modal** (`api` i `worker/modal_app.py`), nås via `/api` på webbadressen. `render.yaml`/`api/Dockerfile` finns kvar som alternativ. |
+| Webb | **Vercel**, byggs från repots rot via `vercel.json`. |
 
 ## Kortkommandon i taggningen
 
