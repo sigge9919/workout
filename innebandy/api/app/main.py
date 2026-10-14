@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 import re
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
@@ -90,11 +91,13 @@ def current_token(token: str = Depends(bearer), sb: SupabaseClient = Depends(get
 
 def _configure_cors() -> None:
     try:
-        origins = [o.strip() for o in get_settings().cors_origins.split(",") if o.strip()]
+        s = get_settings()
+        origins = [o.strip().rstrip("/") for o in s.cors_origins.split(",") if o.strip()]
+        origin_regex = s.cors_origin_regex or None
     except Exception:  # settings missing at import time (tests configure later)
-        origins = ["http://localhost:3000"]
-    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"],
-                       allow_headers=["*"], expose_headers=["ETag"])
+        origins, origin_regex = ["http://localhost:3000"], None
+    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_origin_regex=origin_regex,
+                       allow_methods=["*"], allow_headers=["*"], expose_headers=["ETag"])
 
 
 _configure_cors()
@@ -134,7 +137,7 @@ class CompleteIn(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
-    return {"ok": True}
+    return {"ok": True, "commit": os.environ.get("RENDER_GIT_COMMIT", "")[:7]}
 
 
 def _original_key(video: dict, filename: str) -> str:

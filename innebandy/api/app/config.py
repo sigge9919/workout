@@ -11,6 +11,8 @@ class Settings(BaseSettings):
 
     public_api_url: str = "http://localhost:8000"
     cors_origins: str = "http://localhost:3000"
+    # The Vercel project's production domain and its preview deployments.
+    cors_origin_regex: str = r"https://workout-delta-two\.vercel\.app|https://workout-[a-z0-9]+-innebandyanalys\.vercel\.app"
 
     storage_backend: str = "local"  # local | s3
     local_storage_dir: str = "./data/storage"
