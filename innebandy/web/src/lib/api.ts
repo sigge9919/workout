@@ -1,6 +1,7 @@
 import { supabase } from "./supabase";
 
-const API = () => (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
+// Same-origin; /api is proxied to the API by vercel.json (production) or next.config.ts (dev).
+const API = () => "/api";
 
 async function authHeaders(): Promise<Record<string, string>> {
   const { data } = await supabase().auth.getSession();

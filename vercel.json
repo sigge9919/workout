@@ -1,4 +1,7 @@
 {
   "builds": [{ "src": "innebandy/web/package.json", "use": "@vercel/next" }],
-  "routes": [{ "src": "/(.*)", "dest": "/innebandy/web/$1", "continue": true }]
+  "routes": [
+    { "src": "/api/(.*)", "dest": "https://sigge9919--innebandy-worker-api.us-east.modal.run/$1" },
+    { "src": "/(.*)", "dest": "/innebandy/web/$1", "continue": true }
+  ]
 }

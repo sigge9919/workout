@@ -45,7 +45,7 @@ scripts/dev_api.sh
 cat > web/.env.local <<EOF
 NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=$(scripts/local_supabase.sh anon-key)
-NEXT_PUBLIC_API_URL=http://localhost:8000
+API_ORIGIN=http://localhost:8000
 EOF
 (cd web && npm run dev)                  # http://localhost:3000
 ```
