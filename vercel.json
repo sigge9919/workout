@@ -1,4 +1,4 @@
 {
   "builds": [{ "src": "innebandy/web/package.json", "use": "@vercel/next" }],
-  "routes": [{ "src": "/(.*)", "dest": "/innebandy/web/$1" }]
+  "routes": [{ "src": "/(.*)", "dest": "/innebandy/web/$1", "continue": true }]
 }
