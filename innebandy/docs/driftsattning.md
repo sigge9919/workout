@@ -3,12 +3,13 @@
 Så här kommer appen ut på en riktig adress. Räkna med ungefär 45 minuter första gången. Lägg aldrig in nycklar i chatten, bara i respektive tjänsts inställningar.
 
 ```
-Webbläsare ──► Vercel (webb) ──► Supabase (databas, inloggning)
-     │                │
-     │                └──► Render (API) ──► Modal (transkodning)
+Webbläsare ──► Vercel (webb, /api) ──► Modal (API + transkodning)
      │                                          │
+     ├──► Supabase (databas, inloggning)        │
      └──── video direkt upp/ned ──► Cloudflare R2 ◄┘
 ```
+
+> **Nuvarande uppsättning:** API:t körs på Modal (`api` i `worker/modal_app.py`) och nås via `/api` på Vercel-adressen (se `vercel.json` i repots rot). Vercel bygger `innebandy/web` från repots rot via `vercel.json`, så Root Directory behöver inte ändras. Render (steg 3) används inte längre: tjänsten deployade inte automatiskt. `modal deploy worker/modal_app.py` uppdaterar både API och worker.
 
 | Tjänst | Används till | Kostnad |
 |---|---|---|
