@@ -13,6 +13,7 @@ services:
         - innebandy/api/**
         - innebandy/worker/**
     healthCheckPath: /health
+    autoDeployTrigger: commit
     envVars:
       - key: SUPABASE_URL
         value: https://dmfeafseyecocyaxsdtv.supabase.co
