@@ -1,0 +1,30 @@
+{
+  "name": "stryktips",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "fetch-draw": "tsx scripts/fetch-draw.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
+    "@supabase/supabase-js": "^2.118.0",
+    "dotenv": "^18.0.9",
+    "next": "^15.5.27",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.0",
+    "vitest": "^3.2.7"
+  }
+}

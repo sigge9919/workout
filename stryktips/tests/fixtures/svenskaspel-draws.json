@@ -1,0 +1,62 @@
+{
+  "draws": [
+    {
+      "drawNumber": 4877,
+      "drawState": "Open",
+      "regCloseTime": "2026-10-31T15:59:00+01:00",
+      "turnover": "0,00",
+      "drawEvents": [
+        {
+          "eventNumber": 1,
+          "eventDescription": "Liverpool - Everton",
+          "match": {
+            "matchStart": "2026-10-31T16:00:00+01:00",
+            "participants": [{ "type": "home", "name": "Liverpool" }, { "type": "away", "name": "Everton" }],
+            "league": { "name": "Premier League", "country": { "name": "England" } }
+          }
+        }
+      ]
+    },
+    {
+      "drawNumber": 4876,
+      "drawState": "Open",
+      "regCloseTime": "2026-10-24T15:59:00+02:00",
+      "turnover": "23 456 789,00",
+      "drawEvents": [
+        {
+          "eventNumber": 2,
+          "eventDescription": "Sheffield W - Leeds",
+          "match": {
+            "matchStart": "2026-10-24T16:00:00+02:00",
+            "participants": [{ "type": "home", "name": "Sheffield W" }, { "type": "away", "name": "Leeds" }],
+            "league": { "name": "Championship", "country": { "name": "England" } }
+          },
+          "odds": { "one": "4,10", "x": "3,60", "two": "1,85" },
+          "svenskaFolket": { "one": "18", "x": "24", "two": "58" },
+          "tioTidningarsTips": { "one": 0, "x": 2, "two": 8 }
+        },
+        {
+          "eventNumber": 1,
+          "eventDescription": "Manchester U - Man City",
+          "match": {
+            "matchStart": "2026-10-24T13:30:00+02:00",
+            "participants": [{ "type": "home", "name": "Manchester U" }, { "type": "away", "name": "Manchester C" }],
+            "league": { "name": "Premier League", "country": { "name": "England" } }
+          },
+          "odds": { "one": "3,20", "x": "3,70", "two": "2,15" },
+          "svenskaFolket": { "one": "30", "x": "25", "two": "45" }
+        },
+        {
+          "eventNumber": 3,
+          "eventDescription": "Djurgården - Malmö FF",
+          "cancelled": false,
+          "match": {
+            "matchStart": "2026-10-24T17:30:00+02:00",
+            "league": { "name": "Allsvenskan", "country": { "name": "Sverige" } }
+          },
+          "odds": { "one": "", "x": "", "two": "" }
+        }
+      ]
+    }
+  ]
+}
