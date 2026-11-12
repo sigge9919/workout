@@ -11,6 +11,8 @@
   --color-hold: #e8b660;
   --color-out: #7b8ff2;
   --color-danger: #f07a7a;
+  /* Diagrammarkering: validerad mot mörk yta (OKLCH L 0.48–0.67, kontrast ≥ 3:1). */
+  --color-chart: #2aa88c;
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -115,4 +117,10 @@ a {
   .phase-label {
     animation: none;
   }
+}
+
+/* Diagram: ingen fokusram vid tryck, men kvar för tangentbord. */
+.recharts-wrapper:focus:not(:focus-visible),
+.recharts-surface:focus:not(:focus-visible) {
+  outline: none;
 }

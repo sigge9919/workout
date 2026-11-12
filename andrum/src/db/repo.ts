@@ -1,7 +1,15 @@
 import type { Technique } from '../engine/types';
 import { BUILTIN_TECHNIQUES } from '../techniques/builtin';
 import { parseTechniques } from '../techniques/parse';
-import { DEFAULT_SETTINGS, db as defaultDb, type AndrumDB, type AppSettings, type Rating, type SessionRecord } from './schema';
+import {
+  DEFAULT_SETTINGS,
+  db as defaultDb,
+  type AndrumDB,
+  type AppSettings,
+  type DailyMetric,
+  type Rating,
+  type SessionRecord,
+} from './schema';
 
 /** Sessioner kortare än så här sparas inte (felstarter). */
 export const MIN_SAVED_SESSION_SEC = 10;
@@ -53,4 +61,21 @@ export async function requestPersistentStorage(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+export async function saveBolt(seconds: number, note: string | undefined, date = Date.now(), d: AndrumDB = defaultDb): Promise<number> {
+  return (await d.boltResults.add({ date, seconds, ...(note?.trim() ? { note: note.trim() } : {}) })) as number;
+}
+
+export async function deleteBolt(id: number, d: AndrumDB = defaultDb): Promise<void> {
+  await d.boltResults.delete(id);
+}
+
+/** Ett dagsvärde per datum – sparar över befintligt. */
+export async function saveDailyMetric(m: DailyMetric, d: AndrumDB = defaultDb): Promise<void> {
+  await d.dailyMetrics.put(m);
+}
+
+export async function deleteDailyMetric(date: string, d: AndrumDB = defaultDb): Promise<void> {
+  await d.dailyMetrics.delete(date);
 }
