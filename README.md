@@ -1,5 +1,7 @@
 # Daily Coach
 
+> **Andrum** – andningsappen för idrottare ligger i [`andrum/`](andrum/README.md) med egna instruktioner för att köra, publicera och installera.
+
 A 15-minute daily strength & flexibility coach you install straight to your iPhone home screen. It's built to be the *third pillar* alongside running and the gym: mobility, injury-prevention, core stability and flexibility - never more heavy strength volume, so it never adds fatigue on top of your training.
 
 ## What it does

@@ -29,6 +29,15 @@ export class AudioEngine {
 
   /** Måste anropas i en användarinteraktion (krav i iOS Safari). */
   async unlock(): Promise<void> {
+    // iOS: spela ljud även när ljudlösknappen är på (Safari 17+).
+    const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+    if (session && session.type !== 'playback') {
+      try {
+        session.type = 'playback';
+      } catch {
+        /* stöds inte */
+      }
+    }
     if (!this.ctx) {
       const Ctor: typeof AudioContext =
         window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;

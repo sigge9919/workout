@@ -6,3 +6,4 @@ data/garmin-tokens/
 data/running-analysis.json
 .DS_Store
 andrum/dist/
+andrum/*.tsbuildinfo
