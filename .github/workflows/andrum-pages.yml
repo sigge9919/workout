@@ -1,0 +1,54 @@
+# Bygger och publicerar Andrum (andrum/) på GitHub Pages.
+# Körs vid push till standardgrenen när något i andrum/ ändrats, eller manuellt.
+name: Andrum – GitHub Pages
+
+on:
+  push:
+    paths:
+      - 'andrum/**'
+      - '.github/workflows/andrum-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: andrum-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # Bara standardgrenen publiceras automatiskt; andra grenar kan köras manuellt.
+    if: github.event_name == 'workflow_dispatch' || github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: andrum
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: andrum/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+        env:
+          # Sidan ligger på https://<användare>.github.io/<repo>/
+          BASE_PATH: /${{ github.event.repository.name }}/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: andrum/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

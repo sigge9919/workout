@@ -1,0 +1,126 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-ink: #0a0e13;
+  --color-surface: #121921;
+  --color-surface-2: #1a232d;
+  --color-line: #26323f;
+  --color-text: #e6edf3;
+  --color-muted: #8d9cab;
+  --color-accent: #45d0b0;
+  --color-hold: #e8b660;
+  --color-out: #7b8ff2;
+  --color-danger: #f07a7a;
+  /* Diagrammarkering: validerad mot mörk yta (OKLCH L 0.48–0.67, kontrast ≥ 3:1). */
+  --color-chart: #2aa88c;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+}
+
+html,
+body {
+  background: var(--color-ink);
+  color: var(--color-text);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+a {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Respektera notch och hemindikator i installerat läge. */
+.safe-screen {
+  padding-top: max(env(safe-area-inset-top), 0.5rem);
+  padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+}
+
+/* Andningscirkeln: färgen följer fasen med mjuk övergång. */
+@property --orb-color {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #3b4a5a;
+}
+
+.orb {
+  background: radial-gradient(
+    circle at 38% 32%,
+    color-mix(in oklab, var(--orb-color) 55%, white) 0%,
+    var(--orb-color) 48%,
+    color-mix(in oklab, var(--orb-color) 55%, black) 100%
+  );
+  box-shadow:
+    0 0 60px -8px color-mix(in oklab, var(--orb-color) 70%, transparent),
+    0 0 160px -20px color-mix(in oklab, var(--orb-color) 40%, transparent);
+  transition: --orb-color 900ms ease;
+  transform-origin: center;
+}
+
+.phase-label {
+  animation: label-in 450ms ease-out;
+}
+
+@keyframes label-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Reglage med stor tumme. */
+.range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2rem;
+  background: transparent;
+}
+.range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-line);
+}
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  margin-top: -11px;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+.range::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-line);
+}
+.range::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phase-label {
+    animation: none;
+  }
+}
+
+/* Diagram: ingen fokusram vid tryck, men kvar för tangentbord. */
+.recharts-wrapper:focus:not(:focus-visible),
+.recharts-surface:focus:not(:focus-visible) {
+  outline: none;
+}

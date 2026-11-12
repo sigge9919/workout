@@ -1,0 +1,19 @@
+[
+  {
+    "id": "a1", "sport_key": "soccer_efl_champ", "commence_time": "2026-10-24T14:00:00Z",
+    "home_team": "Sheffield Wednesday", "away_team": "Leeds United",
+    "bookmakers": [
+      { "key": "pinnacle", "title": "Pinnacle", "markets": [{ "key": "h2h", "outcomes": [
+        { "name": "Sheffield Wednesday", "price": 4.2 }, { "name": "Leeds United", "price": 1.9 }, { "name": "Draw", "price": 3.6 } ] }] },
+      { "key": "unibet", "title": "Unibet", "markets": [{ "key": "h2h", "outcomes": [
+        { "name": "Sheffield Wednesday", "price": 4.0 }, { "name": "Leeds United", "price": 1.86 }, { "name": "Draw", "price": 3.5 } ] }] },
+      { "key": "broken", "title": "Broken", "markets": [{ "key": "h2h", "outcomes": [
+        { "name": "Sheffield Wednesday", "price": 4.0 } ] }] }
+    ]
+  },
+  {
+    "id": "a2", "sport_key": "soccer_efl_champ", "commence_time": "2026-10-31T14:00:00Z",
+    "home_team": "Leeds United", "away_team": "Sheffield Wednesday",
+    "bookmakers": []
+  }
+]
