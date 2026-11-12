@@ -2,6 +2,7 @@ import type {
   CompileOptions,
   PhaseKind,
   PhaseSpec,
+  RoundsSpec,
   Technique,
   Timeline,
   TimelinePhase,
@@ -114,7 +115,15 @@ export function compileTimeline(technique: Technique, options: CompileOptions = 
 
   let roundCount = 1;
   if (technique.rounds) {
-    const r = technique.rounds;
+    const r: RoundsSpec = {
+      ...technique.rounds,
+      count: Math.max(1, Math.floor(options.rounds ?? technique.rounds.count)),
+      hold:
+        technique.rounds.hold && options.holdSeconds !== undefined
+          ? { ...technique.rounds.hold, seconds: options.holdSeconds }
+          : technique.rounds.hold,
+    };
+    if (r.hold && !(r.hold.seconds > 0)) throw new TechniqueError('Ogiltig hållning');
     roundCount = r.count;
     for (let round = 0; round < r.count; round++) {
       for (let c = 0; c < r.cyclesPerRound; c++) pushCycle(round);

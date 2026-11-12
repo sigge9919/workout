@@ -114,6 +114,18 @@ describe('compileTimeline', () => {
     expect(tl.totalMs).toBe(3 * 12000 + 15000 + 20000 + 25000 + 2 * 30000);
   });
 
+  it('rundor och hållning kan överstyras', () => {
+    const tl = compileTimeline(co2, { ...noLeadIn, rounds: 2, holdSeconds: 10 });
+    expect(tl.roundCount).toBe(2);
+    const holds = tl.phases.filter((p) => p.kind === 'holdOut').map((p) => p.durationMs);
+    expect(holds).toEqual([10000, 15000]);
+    expect(() => compileTimeline(co2, { holdSeconds: 0 })).toThrow(TechniqueError);
+  });
+
+  it('antal cykler kan överstyras', () => {
+    expect(compileTimeline(box, { ...noLeadIn, cycles: 5 }).phases).toHaveLength(20);
+  });
+
   it('hållning efter inandning lägger in djup inandning och avslutande utandning', () => {
     const t: Technique = {
       ...co2,

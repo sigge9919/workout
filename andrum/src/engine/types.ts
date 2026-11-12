@@ -58,6 +58,12 @@ export interface Technique {
     breathsPerMinute?: { min: number; max: number; step: number; default: number };
     /** Om längden (minuter) får ändras. */
     duration?: { minMinutes: number; maxMinutes: number };
+    /** Antal cykler (läge cycles). */
+    cycles?: { min: number; max: number };
+    /** Antal rundor (tekniker med rundor). */
+    rounds?: { min: number; max: number };
+    /** Första hållningens längd i sekunder (tekniker med rundor). */
+    holdSeconds?: { min: number; max: number; step: number };
   };
   /** Visar varningstext om andetagshållning. */
   hasBreathHold: boolean;
@@ -71,6 +77,10 @@ export interface CompileOptions {
   durationSeconds?: number;
   /** Överstyr antal cykler (läge cycles). */
   cycles?: number;
+  /** Överstyr antal rundor. */
+  rounds?: number;
+  /** Överstyr första hållningens längd (s). */
+  holdSeconds?: number;
   /** Nedräkning innan start. Standard 3 s. */
   leadInSeconds?: number;
 }

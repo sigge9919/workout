@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { compileTimeline } from '../../engine/timeline';
-import { box } from '../../engine/__tests__/fixtures';
+import { box, co2 } from '../../engine/__tests__/fixtures';
 import { planCues } from '../scheduler';
 
 describe('planCues', () => {
@@ -42,5 +42,17 @@ describe('planCues', () => {
     const phaseKeys = [...seen].filter((k) => k.startsWith('phase-'));
     expect(phaseKeys).toHaveLength(tl.phases.length - 1); // alla utom prepare
     expect(seen.has('finish')).toBe(true);
+  });
+
+  it('långa hållningar får tick de sista tre sekunderna, korta inte', () => {
+    const t = compileTimeline(co2, { leadInSeconds: 0 });
+    const hold = t.phases.find((p) => p.kind === 'holdOut')!; // 15 s
+    const cues = planCues(t, hold.startMs, hold.durationMs, new Set());
+    expect(cues.map((c) => `${c.kind}@${c.atMs - hold.startMs}`)).toEqual([
+      'hold@0', 'tick@12000', 'tick@13000', 'tick@14000',
+    ]);
+    // Box har 4 s hållningar → inga ticks.
+    const boxCues = planCues(compileTimeline(box, { leadInSeconds: 0 }), 0, 32000, new Set());
+    expect(boxCues.filter((c) => c.kind === 'tick')).toEqual([]);
   });
 });

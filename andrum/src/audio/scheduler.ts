@@ -12,6 +12,8 @@ export interface PlannedCue {
 
 /** Hur sent en signal får spelas efter sin tidpunkt (t.ex. precis vid start/fortsätt). */
 const LATE_TOLERANCE_MS = 60;
+/** Hållningar minst så här långa får nedräkningsticks. */
+export const HOLD_TICK_MIN_MS = 10_000;
 
 /**
  * Ren funktion: vilka signaler ska läggas inom [elapsed, elapsed + lookahead]?
@@ -40,6 +42,10 @@ export function planCues(
     }
     const kind = cueForPhase(p.kind);
     if (kind) add(`phase-${p.index}`, kind, p.startMs);
+    // Långa hållningar: tick de sista tre sekunderna.
+    if ((p.kind === 'holdIn' || p.kind === 'holdOut') && p.durationMs >= HOLD_TICK_MIN_MS) {
+      for (let s = 3; s >= 1; s--) add(`hold-${p.index}-${s}`, 'tick', p.endMs - s * 1000);
+    }
   }
   add('finish', 'finish', timeline.totalMs);
   return out;
