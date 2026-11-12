@@ -3,6 +3,11 @@ import { NavLink, Outlet } from 'react-router-dom';
 const TABS = [
   { to: '/', label: 'Idag', icon: 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.4-6.4-1.4 1.4M7 17l-1.4 1.4m12.8 0L17 17M7 7 5.6 5.6M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z' },
   { to: '/tekniker', label: 'Tekniker', icon: 'M4 6h16M4 12h16M4 18h10' },
+  {
+    to: '/installningar',
+    label: 'Inställningar',
+    icon: 'M4 7h10m4 0h2M4 17h4m4 0h8M14 5v4M8 15v4',
+  },
 ];
 
 /** Sidlayout med flikrad längst ned. Sessionsvyn ligger utanför (helskärm). */

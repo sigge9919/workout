@@ -18,3 +18,8 @@ export function formatDuration(ms: number): string {
 export function formatNumber(n: number, maxDecimals = 1): string {
   return n.toLocaleString('sv-SE', { maximumFractionDigits: maxDecimals });
 }
+
+/** plural(1, 'session', 'sessioner') → "1 session" */
+export function plural(n: number, one: string, many: string): string {
+  return `${n} ${n === 1 ? one : many}`;
+}

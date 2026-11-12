@@ -55,6 +55,8 @@ export function useSession(timeline: Timeline) {
   const wakeLockRef = useRef(new ScreenWakeLock());
   const [view, setView] = useState<SessionView>(() => toView(stateAt(timeline, 0, 'idle')));
   const [actualMs, setActualMs] = useState(0);
+  /** Väggklocka (epok-ms) då sessionen startade, för loggen. */
+  const [startedAt, setStartedAt] = useState(0);
 
   const publish = useCallback((s: EngineState) => {
     setView((prev) => {
@@ -96,6 +98,7 @@ export function useSession(timeline: Timeline) {
     });
     engineRef.current = engine;
     schedulerRef.current = scheduler;
+    setStartedAt(Date.now());
     engine.start();
     scheduler.sync(engine.elapsed());
     publish(engine.tick());
@@ -168,5 +171,5 @@ export function useSession(timeline: Timeline) {
     };
   }, []);
 
-  return { view, orbRef, start, pause, resume, stop, actualMs, started: view.status !== 'idle' };
+  return { view, orbRef, start, pause, resume, stop, actualMs, startedAt, started: view.status !== 'idle' };
 }

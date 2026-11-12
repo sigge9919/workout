@@ -1,38 +1,42 @@
 import { useSyncExternalStore } from 'react';
-import type { AmbientType } from '../audio/ambient';
+import { loadSettings, saveSettings } from '../db/repo';
+import { DEFAULT_SETTINGS, type AppSettings } from '../db/schema';
 
 /**
- * Ljud-/vibrationsinställningar. I steg 1 hålls de i minnet;
- * i steg 3 sparas de i IndexedDB.
+ * Appinställningar. Läses från IndexedDB vid start och hålls i minnet så
+ * att de kan läsas synkront (t.ex. i klicket som startar en session).
+ * Varje ändring sparas direkt.
  */
-export interface SoundPrefs {
-  soundOn: boolean;
-  cueVolume: number;
-  ambient: AmbientType;
-  ambientVolume: number;
-  vibration: boolean;
+let prefs: AppSettings = DEFAULT_SETTINGS;
+const listeners = new Set<() => void>();
+const notify = () => listeners.forEach((l) => l());
+
+export async function initPrefs(): Promise<void> {
+  try {
+    prefs = await loadSettings();
+    notify();
+  } catch {
+    /* IndexedDB otillgänglig (t.ex. privat läge) – standardvärden används */
+  }
 }
 
-let prefs: SoundPrefs = {
-  soundOn: true,
-  cueVolume: 0.7,
-  ambient: 'brown',
-  ambientVolume: 0.35,
-  vibration: true,
-};
-
-const listeners = new Set<() => void>();
-
-export function getPrefs(): SoundPrefs {
+export function getPrefs(): AppSettings {
   return prefs;
 }
 
-export function setPrefs(patch: Partial<SoundPrefs>): void {
+export function setPrefs(patch: Partial<Omit<AppSettings, 'id'>>): void {
   prefs = { ...prefs, ...patch };
-  for (const l of listeners) l();
+  notify();
+  void saveSettings(prefs).catch(() => undefined);
 }
 
-export function usePrefs(): SoundPrefs {
+/** Efter import av backup. */
+export function replacePrefs(next: AppSettings): void {
+  prefs = next;
+  notify();
+}
+
+export function usePrefs(): AppSettings {
   return useSyncExternalStore(
     (l) => {
       listeners.add(l);
