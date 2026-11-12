@@ -71,6 +71,9 @@ function SessionRunner({
   onSettings: (patch: Partial<SessionSettings>) => void;
 }) {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const programId = params.get('program') ?? undefined;
+  const programDay = Number(params.get('dag')) || undefined;
   const { view, orbRef, start, pause, resume, stop, actualMs, startedAt, started } = useSession(timeline);
   const ended = view.status === 'finished' || view.status === 'stopped';
 
@@ -90,10 +93,11 @@ function SessionRunner({
       actualSec: Math.round(Math.max(0, actualMs - leadInMs) / 1000),
       completed: view.status === 'finished',
       settings,
+      ...(programId ? { programId, programDay } : {}),
     })
       .then(setSavedId)
       .catch(() => setSavedId(null));
-  }, [ended, view.status, actualMs, startedAt, technique, timeline, settings]);
+  }, [ended, view.status, actualMs, startedAt, technique, timeline, settings, programId, programDay]);
 
   if (!started) {
     return (

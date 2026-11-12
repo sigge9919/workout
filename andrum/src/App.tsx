@@ -3,6 +3,7 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { TabLayout } from './components/NavBar';
 import { BoltTestPage } from './pages/BoltTest';
 import { HomePage } from './pages/Home';
+import { ProgramsPage } from './pages/Programs';
 import { SessionPage } from './pages/Session';
 import { SettingsPage } from './pages/Settings';
 import { TechniquesPage } from './pages/Techniques';
@@ -20,6 +21,7 @@ export function App() {
           <Route element={<TabLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/tekniker" element={<TechniquesPage />} />
+            <Route path="/program" element={<ProgramsPage />} />
             <Route path="/matning" element={<MeasurePage />} />
             <Route path="/statistik" element={<StatsPage />} />
             <Route path="/installningar" element={<SettingsPage />} />

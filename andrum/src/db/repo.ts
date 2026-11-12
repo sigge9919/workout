@@ -79,3 +79,11 @@ export async function saveDailyMetric(m: DailyMetric, d: AndrumDB = defaultDb): 
 export async function deleteDailyMetric(date: string, d: AndrumDB = defaultDb): Promise<void> {
   await d.dailyMetrics.delete(date);
 }
+
+export async function setActiveProgram(programId: string, startDate: string, d: AndrumDB = defaultDb): Promise<void> {
+  await d.programState.put({ id: 'active', programId, startDate });
+}
+
+export async function clearActiveProgram(d: AndrumDB = defaultDb): Promise<void> {
+  await d.programState.delete('active');
+}
