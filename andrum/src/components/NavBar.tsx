@@ -3,7 +3,8 @@ import { NavLink, Outlet } from 'react-router-dom';
 const TABS = [
   { to: '/', label: 'Idag', icon: 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.4-6.4-1.4 1.4M7 17l-1.4 1.4m12.8 0L17 17M7 7 5.6 5.6M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z' },
   { to: '/tekniker', label: 'Tekniker', icon: 'M4 6h16M4 12h16M4 18h10' },
-  { to: '/matning', label: 'Mätning', icon: 'M4 19V9m6 10V5m6 14v-7m4 7H3' },
+  { to: '/matning', label: 'Mätning', icon: 'M12 8v4l2.5 2.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z' },
+  { to: '/statistik', label: 'Statistik', icon: 'M4 19V9m6 10V5m6 14v-7m4 7H3' },
   {
     to: '/installningar',
     label: 'Inställningar',

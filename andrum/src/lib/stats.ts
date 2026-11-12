@@ -113,3 +113,118 @@ export function parseDailyMetric(input: MetricInput): DailyMetric {
 
 const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
 const round1 = (x: number) => Math.round(x * 10) / 10;
+
+// ── Sessioner ──────────────────────────────────────────────────────────────
+
+/** Måndag 00:00 lokal tid för veckan som innehåller `ms`. */
+export function weekStart(ms: number): number {
+  const d = new Date(ms);
+  d.setHours(0, 0, 0, 0);
+  const dow = (d.getDay() + 6) % 7; // måndag = 0
+  d.setDate(d.getDate() - dow);
+  return d.getTime();
+}
+
+/** ISO 8601-veckonummer. */
+export function isoWeek(ms: number): number {
+  const d = new Date(ms);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7)); // torsdag samma vecka
+  const jan4 = new Date(d.getFullYear(), 0, 4);
+  return 1 + Math.round(((d.getTime() - jan4.getTime()) / DAY_MS - 3 + ((jan4.getDay() + 6) % 7)) / 7);
+}
+
+export interface WeekBucket {
+  /** Måndag 00:00, epok-ms. */
+  t: number;
+  week: number;
+  count: number;
+  minutes: number;
+}
+
+interface SessionLike {
+  startedAt: number;
+  actualSec: number;
+}
+
+/** Antal sessioner och minuter per vecka, de senaste `weeks` veckorna (inkl. denna), äldst först. */
+export function sessionsPerWeek(sessions: SessionLike[], now: number, weeks = 12): WeekBucket[] {
+  const buckets: WeekBucket[] = [];
+  let t = weekStart(now);
+  for (let i = 0; i < weeks; i++) {
+    buckets.unshift({ t, week: isoWeek(t), count: 0, minutes: 0 });
+    const prev = new Date(t);
+    prev.setDate(prev.getDate() - 7); // setDate hanterar sommartid
+    t = prev.getTime();
+  }
+  const index = new Map(buckets.map((b, i) => [b.t, i]));
+  for (const s of sessions) {
+    const i = index.get(weekStart(s.startedAt));
+    if (i === undefined) continue;
+    buckets[i].count++;
+    buckets[i].minutes += s.actualSec / 60;
+  }
+  for (const b of buckets) b.minutes = Math.round(b.minutes);
+  return buckets;
+}
+
+export interface Streak {
+  /** Dagar i rad fram till idag (eller igår, om idag inte är gjord än). */
+  current: number;
+  longest: number;
+  /** Om dagens session är gjord. */
+  doneToday: boolean;
+}
+
+/** Streak = dagar i rad med minst en session. */
+export function streak(sessions: SessionLike[], now: number): Streak {
+  const days = new Set(sessions.map((s) => localDateOf(s.startedAt)));
+  const today = localDateOf(now);
+  const dayBefore = (date: string) => {
+    const d = new Date(parseLocalDate(date));
+    d.setDate(d.getDate() - 1);
+    return localDateOf(d.getTime());
+  };
+
+  const doneToday = days.has(today);
+  let current = 0;
+  let cursor = doneToday ? today : dayBefore(today);
+  while (days.has(cursor)) {
+    current++;
+    cursor = dayBefore(cursor);
+  }
+
+  let longest = 0;
+  for (const day of days) {
+    if (days.has(dayBefore(day))) continue; // inte början på en svit
+    let len = 0;
+    let c = day;
+    while (days.has(c)) {
+      len++;
+      const d = new Date(parseLocalDate(c));
+      d.setDate(d.getDate() + 1);
+      c = localDateOf(d.getTime());
+    }
+    longest = Math.max(longest, len);
+  }
+  return { current, longest, doneToday };
+}
+
+export interface RatingEffect {
+  /** Antal skattade sessioner. */
+  n: number;
+  energy?: number;
+  stress?: number;
+  focus?: number;
+}
+
+type Rated = { before?: { energy: number; stress: number; focus: number }; after?: { energy: number; stress: number; focus: number } };
+
+/** Medelförändring (efter − före) per mått över skattade sessioner. */
+export function ratingEffect(sessions: Rated[]): RatingEffect {
+  const rated = sessions.filter((s) => s.before && s.after);
+  if (!rated.length) return { n: 0 };
+  const avg = (k: 'energy' | 'stress' | 'focus') =>
+    round1(rated.reduce((sum, s) => sum + (s.after![k] - s.before![k]), 0) / rated.length);
+  return { n: rated.length, energy: avg('energy'), stress: avg('stress'), focus: avg('focus') };
+}

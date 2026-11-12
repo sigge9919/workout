@@ -7,6 +7,8 @@ const SURFACE = 'var(--color-surface)';
 const GRID = 'var(--color-line)';
 const MUTED = 'var(--color-muted)';
 
+const DENSE_POINTS = 30;
+
 const shortDate = (t: number) => new Date(t).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
 const longDate = (t: number) => new Date(t).toLocaleDateString('sv-SE', { weekday: 'short', day: 'numeric', month: 'long' });
 
@@ -35,6 +37,9 @@ export function TrendChart({ data, unit, label, height = 180 }: Props) {
   const lo = Math.min(...values);
   const hi = Math.max(...values);
   const pad = Math.max(2, (hi - lo) * 0.15);
+  // Täta serier: bara linjen, plus en markör på senaste värdet.
+  const dense = data.length > DENSE_POINTS;
+  const lastIndex = data.length - 1;
 
   return (
     <div role="img" aria-label={`${label}: ${data.length} dagar, senast ${formatNumber(data[data.length - 1].value)} ${unit}`}>
@@ -76,13 +81,22 @@ export function TrendChart({ data, unit, label, height = 180 }: Props) {
             }}
           />
           <Line
-            type="monotone"
+            type={dense ? "linear" : "monotone"}
             dataKey="value"
             stroke={CHART}
             strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"
-            dot={{ r: 4, fill: CHART, stroke: SURFACE, strokeWidth: 2 }}
+            dot={
+              dense
+                ? (props: { cx?: number; cy?: number; index?: number }) =>
+                    props.index === lastIndex && props.cx !== undefined && props.cy !== undefined ? (
+                      <circle key="last" cx={props.cx} cy={props.cy} r={4} fill={CHART} stroke={SURFACE} strokeWidth={2} />
+                    ) : (
+                      <g key={props.index} />
+                    )
+                : { r: 4, fill: CHART, stroke: SURFACE, strokeWidth: 2 }
+            }
             activeDot={{ r: 6, fill: CHART, stroke: SURFACE, strokeWidth: 2 }}
             isAnimationActive={false}
           />

@@ -184,7 +184,7 @@ function DailySection() {
             deltaLabel="mot veckan innan"
           />
         </div>
-        <p className="text-sm text-muted">Fullständiga grafer finns under Statistik (steg 5).</p>
+        <p className="text-sm text-muted">Grafer över tid finns under Statistik.</p>
       </Card>
 
       {recent.length > 0 && (
